@@ -22,6 +22,7 @@ export function seedDemo(db: BondDb) {
         displayName: "Sam (sample)",
         timezone: "America/New_York",
         kind: "demo",
+        reminderOptIn: 0,
         createdAt: SEEDED_AT,
       })
       .run();

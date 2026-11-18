@@ -25,7 +25,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - Server routes under `src/app/api` call services in `src/lib`. Pages read those services directly.
 - Sessions are random tokens stored only as a SHA-256 hash. The cookie is `bond_session`, `httpOnly`, `SameSite=Lax`, and `Secure` only on HTTPS.
 
-This file grows as stages land. You can create a bond, share it, accept a part, mark it done, and change it. A material change clears the earlier acceptance. Reminders, calendar files, and templates come next.
+You can create a bond, share it, accept a part, mark it done, and change it. A material change clears the earlier acceptance. In-app reminders stay off until you opt in. A bond page can download an `.ics` file. Templates copy a bond into a new one.
 
 ## What is real, sandboxed, or disabled
 
@@ -36,6 +36,9 @@ This file grows as stages land. You can create a bond, share it, accept a part, 
 | Share link, guest preview, join, and accept | Real. The preview omits private history. Acceptance is an explicit step. A second accept does not create a second row. |
 | Sample bond | Real seed rows, labeled Sample. Changes are turned off. |
 | Share-link signing without `BOND_SHARE_SECRET` | Sandbox. The share panel says the local development key is in use. |
+| In-app reminders | Real, and off until you opt in. They use your saved timezone. |
+| Calendar file (.ics) | Real download. No calendar account is connected. |
+| Templates | Real. Using one creates a new bond. |
 | Email, SMS, push, contacts sync, calendar accounts, payments | Disabled. Nothing is simulated. |
 
 ## Checks

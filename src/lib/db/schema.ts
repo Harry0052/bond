@@ -5,6 +5,7 @@ export const users = sqliteTable("users", {
   displayName: text("display_name").notNull(),
   timezone: text("timezone").notNull(),
   kind: text("kind").notNull(),
+  reminderOptIn: integer("reminder_opt_in").notNull().default(0),
   createdAt: text("created_at").notNull(),
 });
 
@@ -98,6 +99,41 @@ export const commitments = sqliteTable(
     updatedAt: text("updated_at").notNull(),
   },
   (table) => [index("commitments_bond_idx").on(table.bondId, table.dueAt)],
+);
+
+export const templates = sqliteTable(
+  "templates",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id")
+      .notNull()
+      .references(() => users.id),
+    title: text("title").notNull(),
+    purpose: text("purpose").notNull(),
+    bodyJson: text("body_json").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [index("templates_owner_idx").on(table.ownerId, table.createdAt)],
+);
+
+export const reminders = sqliteTable(
+  "reminders",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    commitmentId: text("commitment_id")
+      .notNull()
+      .references(() => commitments.id),
+    bondId: text("bond_id")
+      .notNull()
+      .references(() => bonds.id),
+    kind: text("kind").notNull(),
+    dueOn: text("due_on").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [index("reminders_user_idx").on(table.userId, table.createdAt)],
 );
 
 export const acceptances = sqliteTable(

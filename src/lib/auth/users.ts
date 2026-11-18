@@ -13,6 +13,7 @@ export type PublicUser = {
   displayName: string;
   timezone: string;
   kind: string;
+  reminderOptIn: boolean;
 };
 
 export function hashToken(token: string) {
@@ -29,6 +30,7 @@ export function toPublicUser(row: typeof users.$inferSelect): PublicUser {
     displayName: row.displayName,
     timezone: row.timezone,
     kind: row.kind,
+    reminderOptIn: row.reminderOptIn === 1,
   };
 }
 
@@ -58,6 +60,7 @@ export function createMemberRecord(db: BondDb, displayName: string, timezone: st
       displayName: name,
       timezone: zone,
       kind: "member",
+      reminderOptIn: 0,
       createdAt,
     })
     .run();

@@ -8,6 +8,7 @@ import { CompleteButton } from "@/components/product/complete-button";
 import { RemoveMemberButton } from "@/components/product/remove-member-button";
 import { ReviseForm } from "@/components/product/revise-form";
 import { SharePanel } from "@/components/product/share-panel";
+import { SaveTemplateButton } from "@/components/product/template-actions";
 import { VotePanel } from "@/components/product/vote-panel";
 import { Badge } from "@/components/ui/badge";
 import { readSessionUser } from "@/lib/auth/session";
@@ -160,6 +161,13 @@ export default async function BondPage({ params }: { params: Promise<{ id: strin
       ))}
       <div className="mt-8">
         <SharePanel path={bond.sharePath} sandbox={bond.shareKeySource === "local-fallback"} />
+        <p className="mt-4 text-sm leading-6 text-ink-soft">
+          <a className="font-semibold text-cobalt-deep" href={`/api/bonds/${bond.id}/calendar`}>
+            Download calendar file (.ics)
+          </a>
+          . Bond does not add this to a Google, Apple, or Outlook account.
+        </p>
+        {you?.role === "organizer" && !bond.demo ? <SaveTemplateButton bondId={bond.id} /> : null}
       </div>
       <section className="mt-8" aria-labelledby="history-heading">
         <h2 id="history-heading" className="font-display text-3xl tracking-tight text-ink">

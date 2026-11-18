@@ -1,6 +1,21 @@
 # Bond status
 
 PRODUCT: Bond
+STAGE: 5
+STATUS: PASS
+USER-FACING WORKING FLOWS: Activity shows history for bonds you still belong to. Reminders stay empty until the checkbox is on, then an overdue commitment appears, and turning them off deletes them. A bond page downloads a real `.ics` file. Me lists templates and the integrations that are off. The reminder checkbox can be toggled from the keyboard.
+UI/UX: Activity at 390px (`docs/screenshots/activity-390.png`) and Me at 1440px (`docs/screenshots/me-1440.png`). Mobile nav now has Home, Create, Activity, and Me. Copy states that email, SMS, and calendar accounts are off.
+DATA + SECURITY: `users.reminder_opt_in`, `reminders`, `templates`. Reminder rows are removed when opt-in is false. Calendar download checks accepted membership. The file does not include private notes.
+TESTS: `npm run lint` pass. `npm run typecheck` pass. `npm test` pass (13 files, 24 tests). `npx playwright test e2e/repeat.spec.ts` pass.
+REAL INTEGRATIONS: ICS file, in-app reminders, templates | SANDBOX: local share-link key | DISABLED: email, SMS, push, contacts, calendar-account sync, payments
+FILES CHANGED: reminder and template services, Activity, Me, calendar routes
+OPEN BUGS/RISKS: Export and deletion are not built yet. Local signing key remains a sandbox. No pilot has been run.
+NEXT STAGE PROPOSAL: Stage 6 — export and delete, a permission audit, the runbook, and the pilot plan. No production-readiness claim.
+AWAITING APPROVAL: NO — continuing on `main`.
+
+## Stage 4 record
+
+PRODUCT: Bond
 STAGE: 4
 STATUS: PASS
 USER-FACING WORKING FLOWS: The person who accepted a commitment can mark it done. The time and their name are stored, and the bond becomes Completed when nothing is left open. The organizer can change the title, due time, or person. That raises the revision, reopens the commitment, and the earlier acceptance no longer counts. Removing someone hides the bond and its private activity from them.
