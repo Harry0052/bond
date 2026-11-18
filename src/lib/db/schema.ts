@@ -92,6 +92,8 @@ export const commitments = sqliteTable(
     dueAt: text("due_at").notNull(),
     status: text("status").notNull(),
     revision: integer("revision").notNull().default(1),
+    completedAt: text("completed_at"),
+    completedBy: text("completed_by").references(() => users.id),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
   },

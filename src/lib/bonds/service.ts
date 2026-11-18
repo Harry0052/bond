@@ -274,9 +274,12 @@ export type BondDetail = {
     dueLabel: string;
     status: string;
     assigneeName: string;
+    assignedMemberId: string | null;
     revision: number;
     acceptedByYou: boolean;
     awaitingYou: boolean;
+    acceptedForVersion: boolean;
+    completedLabel: string | null;
   }>;
   events: string[];
   doneCount: number;
@@ -342,11 +345,17 @@ export function getBondDetail(db: BondDb, bondId: string, userId: string, timeZo
       dueLabel: `${formatInZone(task.dueAt, timeZone)} · ${timeZone}`,
       status: task.status,
       assigneeName: (task.assignedMemberId && names.get(task.assignedMemberId)) || "Unassigned",
+      assignedMemberId: task.assignedMemberId,
       revision: task.revision,
       acceptedByYou: acceptanceRows.some(
         (row) => row.commitmentId === task.id && row.memberId === mine?.id && row.revision === task.revision,
       ),
       awaitingYou: task.assignedMemberId === mine?.id,
+      acceptedForVersion: acceptanceRows.some(
+        (row) =>
+          row.commitmentId === task.id && row.memberId === task.assignedMemberId && row.revision === task.revision,
+      ),
+      completedLabel: task.status === "done" && task.completedAt ? formatInZone(task.completedAt, timeZone) : null,
     })),
     events: history.map((event) => humanizeEvent(event.eventType, event.payloadJson, event.createdAt, timeZone)),
     doneCount: tasks.filter((task) => task.status === "done").length,

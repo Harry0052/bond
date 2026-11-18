@@ -25,7 +25,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - Server routes under `src/app/api` call services in `src/lib`. Pages read those services directly.
 - Sessions are random tokens stored only as a SHA-256 hash. The cookie is `bond_session`, `httpOnly`, `SameSite=Lax`, and `Secure` only on HTTPS.
 
-This file grows as stages land. You can save a name, create a bond, share a link, join as a named person, and accept the commitments on that name. Marking a commitment done and editing it come next.
+This file grows as stages land. You can create a bond, share it, accept a part, mark it done, and change it. A material change clears the earlier acceptance. Reminders, calendar files, and templates come next.
 
 ## What is real, sandboxed, or disabled
 

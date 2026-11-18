@@ -1,6 +1,21 @@
 # Bond status
 
 PRODUCT: Bond
+STAGE: 4
+STATUS: PASS
+USER-FACING WORKING FLOWS: The person who accepted a commitment can mark it done. The time and their name are stored, and the bond becomes Completed when nothing is left open. The organizer can change the title, due time, or person. That raises the revision, reopens the commitment, and the earlier acceptance no longer counts. Removing someone hides the bond and its private activity from them.
+UI/UX: Progress flow at 390px (`docs/screenshots/progress-390.png`). Change sits in a disclosure so it is not an extra tap on the happy path. Remove is a labeled button.
+DATA + SECURITY: Completion stores actor and timestamp. Revisions do not delete the old acceptance row; the current revision is what counts. Removal sets invitation status to removed, and list/detail queries require accepted. Sample bonds stay frozen.
+TESTS: `npm run lint` pass. `npm run typecheck` pass. `npm test` pass (11 files, 22 tests). `npx playwright test e2e/progress.spec.ts` pass. The full browser suite was not re-run as one command after this stage; earlier create, foundation, and join tests were green and this stage did not change those screens' contracts.
+REAL INTEGRATIONS: completion, revision, removal in SQLite | SANDBOX: local share-link key | DISABLED: email, SMS, push, contacts, calendar file, payments
+FILES CHANGED: progress service, complete and revise forms, removal, tests
+OPEN BUGS/RISKS: No calendar file or reminder yet. Local signing key remains a sandbox.
+NEXT STAGE PROPOSAL: Stage 5 — ICS download, opt-in in-app reminders, a reusable template, and a pass over keyboard use on a phone-width layout.
+AWAITING APPROVAL: NO — continuing on `main`.
+
+## Stage 3 record
+
+PRODUCT: Bond
 STAGE: 3
 STATUS: PASS
 USER-FACING WORKING FLOWS: A second person opens the share link, picks the name the organizer wrote, ticks each commitment on that name, and accepts. The acceptance is still there after refresh. The organizer sees the new name. An outsider who opens the private address gets the not-found page. Declining does not grant access. The sample bond cannot be joined. Two acceptance calls leave one row. A vote can be cast once and is not changed silently.

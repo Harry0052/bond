@@ -4,6 +4,9 @@ import { AcceptButton } from "@/components/product/accept-button";
 import { AddPersonForm } from "@/components/product/add-person-form";
 import { AgreementCard } from "@/components/product/agreement-card";
 import { Avatar } from "@/components/product/avatar";
+import { CompleteButton } from "@/components/product/complete-button";
+import { RemoveMemberButton } from "@/components/product/remove-member-button";
+import { ReviseForm } from "@/components/product/revise-form";
 import { SharePanel } from "@/components/product/share-panel";
 import { VotePanel } from "@/components/product/vote-panel";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +14,7 @@ import { readSessionUser } from "@/lib/auth/session";
 import { questionSummary } from "@/lib/bonds/join";
 import { getBondDetail } from "@/lib/bonds/service";
 import { getDb } from "@/lib/db/client";
+import { wallClock } from "@/lib/time";
 
 const memberTone = {
   invited: "invited",
@@ -76,13 +80,43 @@ export default async function BondPage({ params }: { params: Promise<{ id: strin
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <Badge tone={commitment.acceptedByYou ? "accepted" : commitment.status === "done" ? "done" : "open"}>
-                    {commitment.acceptedByYou ? "Accepted" : commitment.status === "done" ? "Done" : "Open"}
+                  <Badge
+                    tone={
+                      commitment.status === "done" ? "done" : commitment.acceptedByYou ? "accepted" : "open"
+                    }
+                  >
+                    {commitment.status === "done" ? "Done" : commitment.acceptedByYou ? "Accepted" : "Open"}
                   </Badge>
                   {commitment.awaitingYou && !commitment.acceptedByYou && !bond.demo && bond.status === "active" ? (
                     <AcceptButton commitmentId={commitment.id} title={commitment.title} />
                   ) : null}
+                  {commitment.status === "open" &&
+                  commitment.acceptedForVersion &&
+                  !bond.demo &&
+                  bond.status === "active" &&
+                  (commitment.awaitingYou || you?.role === "organizer") ? (
+                    <CompleteButton commitmentId={commitment.id} />
+                  ) : null}
+                  {commitment.completedLabel ? (
+                    <p className="text-xs text-ink-soft">Done {commitment.completedLabel}</p>
+                  ) : null}
                 </div>
+                {you?.role === "organizer" && !bond.demo && bond.status !== "cancelled" && commitment.assignedMemberId ? (
+                  <details className="mt-3 w-full basis-full">
+                    <summary className="min-h-12 cursor-pointer text-sm font-semibold text-cobalt-deep">
+                      Change this commitment
+                    </summary>
+                    <ReviseForm
+                      commitmentId={commitment.id}
+                      title={commitment.title}
+                      dueLocal={wallClock(new Date(commitment.dueAt), user.timezone) ?? ""}
+                      assigneeMemberId={commitment.assignedMemberId}
+                      people={bond.members
+                        .filter((person) => person.status === "accepted" || person.status === "invited")
+                        .map((person) => ({ id: person.id, name: person.name }))}
+                    />
+                  </details>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -103,7 +137,12 @@ export default async function BondPage({ params }: { params: Promise<{ id: strin
                 </p>
                 <p className="text-sm capitalize text-ink-soft">{member.role}</p>
               </div>
-              <Badge tone={memberTone[member.status as keyof typeof memberTone] ?? "neutral"}>{member.status}</Badge>
+              <div className="flex flex-col items-end gap-2">
+                <Badge tone={memberTone[member.status as keyof typeof memberTone] ?? "neutral"}>{member.status}</Badge>
+                {you?.role === "organizer" && member.role !== "organizer" && !bond.demo ? (
+                  <RemoveMemberButton bondId={bond.id} memberId={member.id} name={member.name} />
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>
