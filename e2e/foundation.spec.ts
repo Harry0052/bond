@@ -7,7 +7,7 @@ test("a visitor can save a name and see it after refresh", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1, name: "Turn the group chat into a bond." })).toBeVisible();
-  await expect(page.getByText("not saved as your bond")).toBeVisible();
+  await expect(page.getByText("Sample only. It is not your group, and it is not saved as your bond.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Join" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Save name" })).toBeVisible();
   await page.screenshot({ path: "docs/screenshots/home-390-top.png" });

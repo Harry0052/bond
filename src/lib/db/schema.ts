@@ -39,3 +39,76 @@ export const rateBuckets = sqliteTable("rate_buckets", {
   windowStart: text("window_start").notNull(),
   count: integer("count").notNull(),
 });
+
+export const bonds = sqliteTable(
+  "bonds",
+  {
+    id: text("id").primaryKey(),
+    creatorId: text("creator_id")
+      .notNull()
+      .references(() => users.id),
+    title: text("title").notNull(),
+    purpose: text("purpose").notNull(),
+    status: text("status").notNull(),
+    shareTokenHash: text("share_token_hash").notNull().unique(),
+    shareNonce: text("share_nonce").notNull(),
+    demo: integer("demo").notNull().default(0),
+    idempotencyKey: text("idempotency_key"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [index("bonds_creator_idx").on(table.creatorId, table.createdAt)],
+);
+
+export const members = sqliteTable(
+  "members",
+  {
+    id: text("id").primaryKey(),
+    bondId: text("bond_id")
+      .notNull()
+      .references(() => bonds.id),
+    userId: text("user_id").references(() => users.id),
+    invitedName: text("invited_name").notNull(),
+    invitationStatus: text("invitation_status").notNull(),
+    role: text("role").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("members_bond_idx").on(table.bondId, table.invitationStatus),
+    index("members_user_idx").on(table.userId, table.invitationStatus),
+  ],
+);
+
+export const commitments = sqliteTable(
+  "commitments",
+  {
+    id: text("id").primaryKey(),
+    bondId: text("bond_id")
+      .notNull()
+      .references(() => bonds.id),
+    assignedMemberId: text("assigned_member_id").references(() => members.id),
+    title: text("title").notNull(),
+    dueAt: text("due_at").notNull(),
+    status: text("status").notNull(),
+    revision: integer("revision").notNull().default(1),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [index("commitments_bond_idx").on(table.bondId, table.dueAt)],
+);
+
+export const bondEvents = sqliteTable(
+  "bond_events",
+  {
+    id: text("id").primaryKey(),
+    bondId: text("bond_id")
+      .notNull()
+      .references(() => bonds.id),
+    actorId: text("actor_id"),
+    eventType: text("event_type").notNull(),
+    payloadJson: text("payload_json").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [index("bond_events_bond_idx").on(table.bondId, table.createdAt)],
+);

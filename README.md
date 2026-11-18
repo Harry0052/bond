@@ -25,14 +25,17 @@ Open [http://localhost:3000](http://localhost:3000).
 - Server routes under `src/app/api` call services in `src/lib`. Pages read those services directly.
 - Sessions are random tokens stored only as a SHA-256 hash. The cookie is `bond_session`, `httpOnly`, `SameSite=Lax`, and `Secure` only on HTTPS.
 
-This file grows as stages land. Stage 1 saves a display name and shows a labeled sample card. Creating a bond is not available yet.
+This file grows as stages land. You can save a name, create a bond, open it again after a refresh, and read a guest preview. Joining and accepting a commitment are not available yet.
 
 ## What is real, sandboxed, or disabled
 
 | Capability | State |
 | --- | --- |
 | Save a name and timezone for this browser | Real. Session row in SQLite. |
-| Sample agreement card on Home | A picture on the page. It is not your bond and cannot be joined. |
+| Create a bond, list it, open it again | Real. Rows in SQLite. Due times are stored in UTC and shown in your timezone. |
+| Share link and guest preview | Real. The preview omits private history. Accepting a part is not on that screen yet. |
+| Sample bond | Real seed rows, labeled Sample. Changes are turned off. |
+| Share-link signing without `BOND_SHARE_SECRET` | Sandbox. The share panel says the local development key is in use. |
 | Email, SMS, push, contacts sync, calendar accounts, payments | Disabled. Nothing is simulated. |
 
 ## Checks
