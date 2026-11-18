@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1e2340;
+  --color-ink-soft: #3a415f;
+  --color-peach: #ffd9c7;
+  --color-peach-deep: #f3b79a;
+  --color-cobalt: #4f63f8;
+  --color-cobalt-deep: #2a36b5;
+  --color-paper: #fff6f1;
+  --color-card: #ffffff;
+  --color-line: #eadfd8;
+  --color-good: #0f6e56;
+  --color-good-bg: #e5f6f0;
+  --color-warn: #8a4b12;
+  --color-warn-bg: #fff1e4;
+  --color-clay: #8c2f39;
+  --color-clay-bg: #fbecee;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --radius-card: 1.75rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(255, 217, 199, 0.7), transparent 28rem),
+    var(--color-paper);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: #4f63f8;
+  color: #ffffff;
+}
+
+:focus-visible {
+  outline: 3px solid #4f63f8;
+  outline-offset: 3px;
+}
+
+header :focus-visible {
+  outline-color: #ffd9c7;
+}
+
+#main {
+  scroll-margin-top: 5.5rem;
+}
+
+.bond-mark {
+  display: inline-flex;
+  width: 1.7rem;
+  height: 1.7rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.bond-mark span,
+.bond-mark span::after {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  border: 2px solid #ffd9c7;
+  display: block;
+}
+
+.bond-mark span {
+  position: relative;
+  margin-right: 0.35rem;
+}
+
+.bond-mark span::after {
+  content: "";
+  position: absolute;
+  left: 0.38rem;
+  top: -2px;
+  border-color: #4f63f8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
