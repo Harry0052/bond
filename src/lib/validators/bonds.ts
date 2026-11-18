@@ -26,6 +26,7 @@ export const createBondSchema = z
       .array(commitmentInputSchema)
       .min(1, "Add at least one commitment.")
       .max(20, "Keep this to 20 commitments."),
+    votePrompt: z.string().trim().max(140, "Use 140 characters or fewer.").optional(),
   })
   .strict()
   .superRefine((value, context) => {

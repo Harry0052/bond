@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { AgreementCard } from "@/components/product/agreement-card";
 import { DueTime } from "@/components/product/due-time";
+import { JoinForm } from "@/components/product/join-form";
 import { Badge } from "@/components/ui/badge";
 import { buttonClass } from "@/components/ui/button";
+import { readSessionUser } from "@/lib/auth/session";
+import { openSlots } from "@/lib/bonds/join";
 import { readPreview } from "@/lib/bonds/service";
 import { getDb } from "@/lib/db/client";
 
 export default async function PreviewPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const preview = readPreview(getDb(), decodeURIComponent(token));
+  const db = getDb();
+  const decoded = decodeURIComponent(token);
+  const preview = readPreview(db, decoded);
+  const sheet = openSlots(db, decoded);
+  const user = await readSessionUser(db);
   if (!preview) {
     return (
       <main id="main" className="mx-auto flex w-full max-w-3xl flex-col px-4 py-16">
@@ -35,11 +42,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ token:
         <p className="mt-4 rounded-2xl bg-peach px-4 py-3 text-sm font-semibold text-ink">
           Sample bond. It is not your group, and joining it is turned off.
         </p>
-      ) : (
-        <p className="mt-4 rounded-2xl bg-paper px-4 py-3 text-sm leading-6 text-ink ring-1 ring-line">
-          Taking a part is not on this screen yet. The card below is the whole preview.
-        </p>
-      )}
+      ) : null}
       {preview.shareKeySource === "local-fallback" ? (
         <p className="mt-4 text-sm leading-6 text-warn">
           This link was signed with the local development key.
@@ -73,6 +76,9 @@ export default async function PreviewPage({ params }: { params: Promise<{ token:
           </ul>
         </AgreementCard>
       </div>
+      {preview.demo || !sheet || preview.status !== "active" ? null : (
+        <JoinForm token={decoded} slots={sheet.slots} signedIn={Boolean(user)} />
+      )}
     </main>
   );
 }

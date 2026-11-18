@@ -43,6 +43,7 @@ export function CreateBondForm({
   const [commitments, setCommitments] = useState<CommitmentRow[]>([
     { key: "task-1", title: "", assigneeKey: "self", dueLocal: "" },
   ]);
+  const [votePrompt, setVotePrompt] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -96,6 +97,7 @@ export function CreateBondForm({
           purpose,
           people: named.map((person) => ({ name: person.name.trim() })),
           commitments: commitmentPayload,
+          votePrompt,
         }),
       });
       const body = (await response.json().catch(() => null)) as {
@@ -313,6 +315,22 @@ export function CreateBondForm({
           Add a commitment
         </Button>
       </fieldset>
+      <div>
+        <label className="block text-sm font-semibold text-ink" htmlFor="vote-prompt">
+          Optional question
+        </label>
+        <input
+          id="vote-prompt"
+          value={votePrompt}
+          onChange={(event) => setVotePrompt(event.target.value)}
+          className={`${fieldClass(false)} mt-2`}
+          maxLength={140}
+          placeholder="Add snacks?"
+        />
+        <p className="mt-2 text-sm leading-6 text-ink-soft">
+          People can vote yes or no after they join. A vote is not a contract.
+        </p>
+      </div>
       <Button type="submit" className="w-full sm:w-auto" disabled={pending}>
         {pending ? "Saving…" : "Create bond"}
       </Button>

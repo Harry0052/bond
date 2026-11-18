@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import type { BondDb } from "@/lib/db/client";
-import { bonds, commitments, members } from "@/lib/db/schema";
+import { bonds, commitments, members, voteQuestions } from "@/lib/db/schema";
 import { checkShareToken, shareSigning } from "@/lib/bonds/tokens";
 
 export type PublicPreview = {
@@ -11,6 +11,7 @@ export type PublicPreview = {
   shareKeySource: "env" | "local-fallback";
   counts: { invited: number; accepted: number; declined: number };
   namesOnTheCard: string[];
+  votePrompt: string | null;
   commitments: Array<{
     title: string;
     dueAt: string;
@@ -32,6 +33,7 @@ export function publicPreview(db: BondDb, token: string): PublicPreview | null {
   if (!bond) return null;
   const people = db.select().from(members).where(eq(members.bondId, bond.id)).all();
   const tasks = db.select().from(commitments).where(eq(commitments.bondId, bond.id)).all();
+  const question = db.select().from(voteQuestions).where(eq(voteQuestions.bondId, bond.id)).get();
   const visible = people.filter((person) => PUBLIC_STATUSES.has(person.invitationStatus));
   const labels = new Map(visible.map((person) => [person.id, person.invitedName]));
   return {
@@ -46,6 +48,7 @@ export function publicPreview(db: BondDb, token: string): PublicPreview | null {
       declined: people.filter((person) => person.invitationStatus === "declined").length,
     },
     namesOnTheCard: visible.map((person) => person.invitedName),
+    votePrompt: question?.prompt ?? null,
     commitments: tasks
       .slice()
       .sort((a, b) => a.dueAt.localeCompare(b.dueAt))

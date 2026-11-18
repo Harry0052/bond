@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import type { BondDb } from "@/lib/db/client";
-import { bondEvents, bonds, commitments, members, users } from "@/lib/db/schema";
+import { acceptances, bondEvents, bonds, commitments, members, users, voteQuestions } from "@/lib/db/schema";
 import { humanizeEvent, recordBondEvent } from "@/lib/bonds/events";
 import { publicPreview, type PublicPreview } from "@/lib/bonds/preview";
 import { SAMPLE_BOND_ID, SAMPLE_NONCE } from "@/lib/bonds/sample";
@@ -138,6 +138,12 @@ export function createBond(db: BondDb, userId: string, input: CreateBondInput, i
           invitedName: person.name,
         });
       }
+      const prompt = parsed.data.votePrompt?.trim();
+      if (prompt) {
+        tx.insert(voteQuestions)
+          .values({ id: randomUUID(), bondId, prompt, createdAt })
+          .run();
+      }
     });
   } catch (error) {
     if (idempotencyKey && String(error).includes("idempotency")) {
@@ -269,6 +275,8 @@ export type BondDetail = {
     status: string;
     assigneeName: string;
     revision: number;
+    acceptedByYou: boolean;
+    awaitingYou: boolean;
   }>;
   events: string[];
   doneCount: number;
@@ -288,6 +296,20 @@ export function getBondDetail(db: BondDb, bondId: string, userId: string, timeZo
     .all()
     .sort((a, b) => a.dueAt.localeCompare(b.dueAt));
   const names = new Map(people.map((person) => [person.id, person.invitedName]));
+  const mine = people.find((person) => person.userId === userId);
+  const acceptanceRows =
+    tasks.length === 0
+      ? []
+      : db
+          .select()
+          .from(acceptances)
+          .where(
+            inArray(
+              acceptances.commitmentId,
+              tasks.map((task) => task.id),
+            ),
+          )
+          .all();
   const history = db
     .select()
     .from(bondEvents)
@@ -321,6 +343,10 @@ export function getBondDetail(db: BondDb, bondId: string, userId: string, timeZo
       status: task.status,
       assigneeName: (task.assignedMemberId && names.get(task.assignedMemberId)) || "Unassigned",
       revision: task.revision,
+      acceptedByYou: acceptanceRows.some(
+        (row) => row.commitmentId === task.id && row.memberId === mine?.id && row.revision === task.revision,
+      ),
+      awaitingYou: task.assignedMemberId === mine?.id,
     })),
     events: history.map((event) => humanizeEvent(event.eventType, event.payloadJson, event.createdAt, timeZone)),
     doneCount: tasks.filter((task) => task.status === "done").length,

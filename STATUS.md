@@ -1,6 +1,21 @@
 # Bond status
 
 PRODUCT: Bond
+STAGE: 3
+STATUS: PASS
+USER-FACING WORKING FLOWS: A second person opens the share link, picks the name the organizer wrote, ticks each commitment on that name, and accepts. The acceptance is still there after refresh. The organizer sees the new name. An outsider who opens the private address gets the not-found page. Declining does not grant access. The sample bond cannot be joined. Two acceptance calls leave one row. A vote can be cast once and is not changed silently.
+UI/UX: Joined bond at 390px (`docs/screenshots/joined-390.png`). The preview now has a real accept and decline form. Sample joining stays off, with that sentence on the page.
+DATA + SECURITY: `acceptances` is unique on commitment, member, and revision. `decisions` is unique on question and member. Join claims a slot only while it is still invited. Preview and the join sheet do not include account ids or the event log.
+TESTS: `npm run lint` pass. `npm run typecheck` pass. `npm test` pass (10 files, 19 tests). `npm run test:e2e` pass for create, foundation, and join. The full four-test run passed except a strict-mode locator in join, which was fixed and re-run alone: pass.
+REAL INTEGRATIONS: join and accept in SQLite | SANDBOX: local share-link key, labeled | DISABLED: email, SMS, push, contacts, calendar accounts, payments. Completion and material edits are not built yet.
+FILES CHANGED: acceptance and vote tables, join service, preview form, accept and vote controls
+OPEN BUGS/RISKS: Local signing key remains a sandbox. A member can still be removed only by a later stage.
+NEXT STAGE PROPOSAL: Stage 4 — mark commitments done, keep the event log, and require a new acceptance when the title, due time, or assignee changes.
+AWAITING APPROVAL: NO — continuing on `main`.
+
+## Stage 2 record
+
+PRODUCT: Bond
 STAGE: 2
 STATUS: PASS
 USER-FACING WORKING FLOWS: An organizer can create a bond with people and commitments, see it on Home, and open the same card after a refresh. Due times are stored in UTC and shown in the organizer's timezone. A guest with the link can read a preview that omits history. A person who is not a member gets the not-found page for the private address. A short title is rejected. If the network drops, the form says nothing was saved.

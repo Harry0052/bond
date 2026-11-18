@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
@@ -96,6 +96,53 @@ export const commitments = sqliteTable(
     updatedAt: text("updated_at").notNull(),
   },
   (table) => [index("commitments_bond_idx").on(table.bondId, table.dueAt)],
+);
+
+export const acceptances = sqliteTable(
+  "acceptances",
+  {
+    id: text("id").primaryKey(),
+    commitmentId: text("commitment_id")
+      .notNull()
+      .references(() => commitments.id),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => members.id),
+    revision: integer("revision").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [uniqueIndex("acceptances_once_idx").on(table.commitmentId, table.memberId, table.revision)],
+);
+
+export const voteQuestions = sqliteTable("vote_questions", {
+  id: text("id").primaryKey(),
+  bondId: text("bond_id")
+    .notNull()
+    .references(() => bonds.id),
+  prompt: text("prompt").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const decisions = sqliteTable(
+  "decisions",
+  {
+    id: text("id").primaryKey(),
+    bondId: text("bond_id")
+      .notNull()
+      .references(() => bonds.id),
+    questionId: text("question_id")
+      .notNull()
+      .references(() => voteQuestions.id),
+    memberId: text("member_id")
+      .notNull()
+      .references(() => members.id),
+    vote: text("vote").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("decisions_once_idx").on(table.questionId, table.memberId),
+    index("decisions_bond_idx").on(table.bondId, table.createdAt),
+  ],
 );
 
 export const bondEvents = sqliteTable(

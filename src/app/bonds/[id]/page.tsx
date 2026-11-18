@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AcceptButton } from "@/components/product/accept-button";
+import { AddPersonForm } from "@/components/product/add-person-form";
 import { AgreementCard } from "@/components/product/agreement-card";
 import { Avatar } from "@/components/product/avatar";
 import { SharePanel } from "@/components/product/share-panel";
+import { VotePanel } from "@/components/product/vote-panel";
 import { Badge } from "@/components/ui/badge";
 import { readSessionUser } from "@/lib/auth/session";
+import { questionSummary } from "@/lib/bonds/join";
 import { getBondDetail } from "@/lib/bonds/service";
 import { getDb } from "@/lib/db/client";
 
@@ -22,6 +26,8 @@ export default async function BondPage({ params }: { params: Promise<{ id: strin
   if (!user) notFound();
   const bond = getBondDetail(db, id, user.id, user.timezone);
   if (!bond) notFound();
+  const you = bond.members.find((member) => member.isYou);
+  const questions = questionSummary(db, bond.id, you?.id ?? null);
   const tone = bond.status === "completed" ? "done" : bond.status === "cancelled" ? "warn" : "open";
 
   return (
@@ -69,9 +75,14 @@ export default async function BondPage({ params }: { params: Promise<{ id: strin
                     {commitment.assigneeName} · {commitment.dueLabel}
                   </p>
                 </div>
-                <Badge tone={commitment.status === "done" ? "done" : "open"}>
-                  {commitment.status === "done" ? "Done" : "Open"}
-                </Badge>
+                <div className="flex flex-col items-end gap-2">
+                  <Badge tone={commitment.acceptedByYou ? "accepted" : commitment.status === "done" ? "done" : "open"}>
+                    {commitment.acceptedByYou ? "Accepted" : commitment.status === "done" ? "Done" : "Open"}
+                  </Badge>
+                  {commitment.awaitingYou && !commitment.acceptedByYou && !bond.demo && bond.status === "active" ? (
+                    <AcceptButton commitmentId={commitment.id} title={commitment.title} />
+                  ) : null}
+                </div>
               </li>
             ))}
           </ul>
@@ -96,7 +107,18 @@ export default async function BondPage({ params }: { params: Promise<{ id: strin
             </li>
           ))}
         </ul>
+        {you?.role === "organizer" && !bond.demo && bond.status === "active" ? <AddPersonForm bondId={bond.id} /> : null}
       </section>
+      {questions.map((question) => (
+        <VotePanel
+          key={question.id}
+          questionId={question.id}
+          prompt={question.prompt}
+          yes={question.yes}
+          no={question.no}
+          yours={question.yours}
+        />
+      ))}
       <div className="mt-8">
         <SharePanel path={bond.sharePath} sandbox={bond.shareKeySource === "local-fallback"} />
       </div>
