@@ -34,7 +34,7 @@ test("a second person can accept, and an outsider is blocked", async ({ page, br
   await expect(guest.getByText("Accepted", { exact: true })).toBeVisible();
 
   await page.reload();
-  await expect(page.getByText(guestName, { exact: true })).toBeVisible();
+  await expect(page.locator("p", { hasText: new RegExp(`^${guestName}$`) })).toBeVisible();
   await expect(page.getByText("accepted", { exact: true }).first()).toBeVisible();
 
   const outsiderContext = await browser.newContext();

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DeleteAccount } from "@/components/product/delete-account";
 import { NameForm } from "@/components/product/name-form";
 import { UseTemplateButton } from "@/components/product/template-actions";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -81,6 +82,20 @@ export default async function MePage() {
           A calendar file can be downloaded from a bond. Bond does not sign into a calendar account.
         </p>
       </section>
+      {user ? (
+        <section className="mt-8" aria-labelledby="export-heading">
+          <h2 id="export-heading" className="font-display text-3xl tracking-tight">
+            Download my data
+          </h2>
+          <p className="mt-2 text-base leading-7 text-ink-soft">
+            A JSON file of your profile and the bonds you can still open. Share links are not included.
+          </p>
+          <a className={`${buttonClass("secondary")} mt-4`} href="/api/account/export">
+            Download JSON
+          </a>
+          <DeleteAccount />
+        </section>
+      ) : null}
     </main>
   );
 }
